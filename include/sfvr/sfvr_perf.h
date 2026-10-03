@@ -1,5 +1,5 @@
 /* sfvr_perf.h - window accumulator for the `[vr-perf]` log line
- * (standard.md section 8).
+ * (STANDARD.md section 8).
  *
  * Setup: sfvr_perf_init(&p, 10.0, names, count) with up to 8 caller-named CPU
  * stages (names are copied, at most 15 characters each, so the strings need not

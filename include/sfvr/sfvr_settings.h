@@ -1,4 +1,4 @@
-/* sfvr_settings.h - the VR settings key registry (standard.md section 7, with the
+/* sfvr_settings.h - the VR settings key registry (STANDARD.md section 7, with the
  * keys of sections 4, 5, 6, 8 and 9).
  *
  * This is a registry and a set of value helpers only: key names, types,

@@ -1,5 +1,5 @@
 /* sfvr_haptics.h - haptic event vocabulary and per-frame coalescing queue
- * (standard.md section 6).
+ * (STANDARD.md section 6).
  *
  * Usage per frame: submit pulses from anywhere in the frame with
  * sfvr_haptic_submit()/sfvr_haptic_event(); once per frame call

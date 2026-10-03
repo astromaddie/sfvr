@@ -1,4 +1,4 @@
-/* sfvr_view.h - the L View button state machine (standard.md section 1).
+/* sfvr_view.h - the L View button state machine (STANDARD.md section 1).
  *
  * Short press = the game's Select/Back. Hold 1 s = recentre. Hold 3 s =
  * recentre and recalibrate standing height. The caller feeds the raw button

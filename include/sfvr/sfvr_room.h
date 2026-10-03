@@ -1,4 +1,4 @@
-/* sfvr_room.h - roomscale walking in tracking space (standard.md section 5),
+/* sfvr_room.h - roomscale walking in tracking space (STANDARD.md section 5),
  * generalised from Halo CE VR's vr_room_step / vr_room_moved / vr_room_hold /
  * head_offset.
  *

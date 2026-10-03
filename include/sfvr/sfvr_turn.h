@@ -1,5 +1,5 @@
 /* sfvr_turn.h - snap / smooth / off turning from right-stick X
- * (standard.md section 5).
+ * (STANDARD.md section 5).
  *
  * SIGN: the returned yaw delta is in DEGREES, positive = turn RIGHT
  * (clockwise seen from above). Stick X positive (pushed right) gives a

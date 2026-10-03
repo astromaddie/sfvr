@@ -1,9 +1,8 @@
 # sfvr
 
-A small C99 library shared by the Steam Frame VR game ports: Halo CE (C), F-Zero X
-and Star Fox (C++). It holds the logic every port must do identically, so the
-user moves between games without relearning anything. Daggerfall (Unity) mirrors
-it in C#.
+A small C99 library for native Steam Frame VR game ports. It holds the logic every
+port should do identically (recentring, turning, haptics, settings keys, the
+`[vr-perf]` line), so a player moves between games without relearning anything.
 
 No OpenXR, GL or SDL dependency; no `malloc`; no mutable globals (const tables
 only); only `<math.h>`, `<string.h>`, `<stdio.h>`, `<stddef.h>`. No assumptions
@@ -16,7 +15,7 @@ unless a name ends `_rad`. Everything is prefixed `sfvr_` / `SFVR_`.
 
 ## The standard it implements
 
-`~/.claude/skills/steam-frame-vr-port/references/standard.md`
+[STANDARD.md](STANDARD.md)
 
 | Section | Module |
 | --- | --- |
@@ -97,7 +96,8 @@ against the library.
 
 ## Vendoring into a port
 
-sfvr is vendored by copying, not as a submodule. Its canonical source is this repo.
+sfvr is vendored by copying, not as a submodule. Each vendored copy becomes part of
+the host project and is distributed under that project's licence.
 
 1. Copy `include/` and `src/` to `<port>/third_party/sfvr/` (so
    `third_party/sfvr/include/sfvr/*.h` and `third_party/sfvr/src/*.c`).
