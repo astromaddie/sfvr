@@ -1,21 +1,19 @@
 # sfvr
 
-A small C99 library for native Steam Frame VR game ports. It holds the logic every
-port should do identically (recentring, turning, haptics, settings keys, the
-`[vr-perf]` line), so a player moves between games without relearning anything.
+A tiny C99 library I use in my Steam Frame VR ports. It's the stuff every port
+should do the same way (recentring, turning, haptics, settings names, the
+`[vr-perf]` log line), so you don't have to relearn things when you switch games.
+The conventions themselves are written up in [STANDARD.md](STANDARD.md).
 
-No OpenXR, GL or SDL dependency; no `malloc`; no mutable globals (const tables
-only); only `<math.h>`, `<string.h>`, `<stdio.h>`, `<stddef.h>`. No assumptions
-about pointer size (usable in an ILP32 AArch64 guest). Compiles warning-free with
-`-std=c99 -Wall -Wextra -Werror -pedantic` under clang and gcc, and every header
-is usable from C++ (`extern "C"` guards).
+It doesn't depend on OpenXR, GL or SDL, never allocates, and only uses
+`<math.h>`, `<string.h>`, `<stdio.h>` and `<stddef.h>`. It builds clean with
+`-std=c99 -Wall -Wextra -Werror -pedantic`, every header works from C++, and it
+doesn't assume a pointer size, so it's fine in a 32-bit-pointer AArch64 build too.
 
-Units: seconds (`double` for absolute time, `float` for dt), metres, degrees
-unless a name ends `_rad`. Everything is prefixed `sfvr_` / `SFVR_`.
+Times are in seconds (`double` for absolute time, `float` for frame deltas),
+distances in metres and angles in degrees unless the name ends in `_rad`.
 
-## The standard it implements
-
-[STANDARD.md](STANDARD.md)
+## What's in it
 
 | Section | Module |
 | --- | --- |
@@ -25,13 +23,14 @@ unless a name ends `_rad`. Everything is prefixed `sfvr_` / `SFVR_`.
 | 7 Settings key registry | `sfvr_settings.h` |
 | 8 `[vr-perf]` line | `sfvr_perf.h` |
 
-Not here (each port owns it): the OpenXR session, settings file formats and IO,
-the display-time scheduler.
+The OpenXR session, settings file reading/writing and frame scheduling stay in
+each game, since they're too tied to the engine.
 
 ## API summary
 
-Include `sfvr/sfvr.h` for everything (also `SFVR_VERSION_MAJOR/MINOR/PATCH` =
-0.1.0), or one module header. Every header documents its rules in a top comment.
+Include `sfvr/sfvr.h` for everything (it also has `SFVR_VERSION_MAJOR/MINOR/PATCH`,
+currently 0.1.0), or just the header you need. Each header explains its rules at
+the top.
 
 ```c
 /* sfvr_view.h: bitmask of SFVR_VIEW_SHORT_PRESS | RECENTRE | RECALIBRATE_HEIGHT */
@@ -90,23 +89,20 @@ make sanitize        # tests under ASan + UBSan
 cmake -S . -B build && cmake --build build && ctest --test-dir build
 ```
 
-`make test` also compiles every public header on its own as C and as C++
-(`clang++ -std=c++17 -Wall -Wextra -Werror`), and links a small C++ program
-against the library.
+`make test` also compiles each header on its own as C and as C++, and links a
+small C++ program against the library to make sure that keeps working.
 
-## Vendoring into a port
+## Using it in a game
 
-sfvr is vendored by copying, not as a submodule. Each vendored copy becomes part of
-the host project and is distributed under that project's licence.
+Just copy it in, no submodule. The copy becomes part of that game's source and
+uses the game's licence.
 
-1. Copy `include/` and `src/` to `<port>/third_party/sfvr/` (so
-   `third_party/sfvr/include/sfvr/*.h` and `third_party/sfvr/src/*.c`).
-2. Add `<port>/third_party/sfvr/VERSION` containing the sfvr git SHA
-   (`git rev-parse HEAD` here) as its only line.
+1. Copy `include/` and `src/` to `<game>/third_party/sfvr/`.
+2. Put the sfvr commit hash in `<game>/third_party/sfvr/VERSION`.
 3. Add `third_party/sfvr/include` to the include path and the `src/*.c` files to
-   the build (they need only `-lm`).
-4. **Never edit the vendored copy.** Change it here, add a test, then re-vendor
-   (copy again and update `VERSION`).
+   the build. They only need `-lm`.
+4. Try not to edit the copy. If something needs changing, change it here, add a
+   test, and copy it over again so the games stay in sync.
 
 ```
 sh -c 'dst=<port>/third_party/sfvr; rm -rf "$dst" && mkdir -p "$dst" &&

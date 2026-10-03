@@ -1,168 +1,119 @@
-# Steam Frame VR conventions (v0.1)
+# Steam Frame VR conventions
 
-`sfvr` implements a small set of shared conventions for native, standalone VR ports on the Valve Steam Frame. The aim is that a player moves between games without relearning recentring, menus, comfort options or settings. The section numbers are referenced from the headers.
+I've been porting a few old games to run natively on the Steam Frame, and I got tired of every one of them doing recentre, menus and comfort settings slightly differently. So these are the conventions they all share now, and sfvr is the bit of code that implements the fiddly parts. The section numbers are what the headers point at.
 
-The conventions draw on:
+A lot of this comes from Valve's Steam Frame docs, Meta's and Microsoft's VR design guidance, and stuff that's worked well in other flat-to-VR ports (Team Beef's Quest ports, HaloCEVR, UEVR, DFUVR).
 
-- Valve's Steam Frame input and compatibility documentation;
-- Meta and Microsoft XR design guidance;
-- established flat-to-VR ports (Team Beef's Quest ports, HaloCEVR, UEVR, DFUVR).
+Games can add their own controls on top. They just shouldn't move the system buttons in section 1, and the buttons should always match what the game shows on screen.
 
-Game-specific control maps may add actions. They do not move the system layer (section 1), and they follow the roles in section 2 unless the game's own on-screen prompts say otherwise. Physical buttons always match what the game shows.
+## 0. What Valve asks for
 
-## 0. Platform floor (Valve)
+At least 72 fps at 1728x1728 per eye. The default Frame bindings have to reach everything, and menus have to work with just the controllers. Use Frame (or Xbox) button names. Don't touch the System button, the runtime owns it. When the game loses focus, keep submitting frames, ignore input and pause.
 
-- At least 72 fps at a 1728² eye resolution.
-- The default Frame bindings reach all content, and menus are fully navigable by controller.
-- Button glyphs use Frame (or Xbox) names.
-- The System button belongs to the runtime and is never bound.
-- On focus loss the game keeps submitting frames, ignores input, and pauses.
+## 1. System buttons
 
-## 1. System layer
-
-| Input | Action |
+| Input | What it does |
 | --- | --- |
-| Right Menu | The game's Start/pause |
-| Left View, short press | The game's Select or Back; in menus, back |
-| Left View, hold 1 s | Recentre (yaw and horizontal position), with a short buzz on both hands |
-| Left View, hold 3 s | Recentre and recalibrate standing height, with a second buzz |
-| Pause menu, "VR settings" | Opens the VR settings. Where the game's pause menu cannot be extended (for example a ROM-driven simulation), holding Menu + View together for 0.5 s opens them instead |
-| VR settings, "Quit to Steam" | Confirm, then a clean `xrRequestExitSession` and exit |
+| Right Menu | The game's pause/Start |
+| Left View, tap | The game's Select or Back (back in menus) |
+| Left View, hold 1 s | Recentre, with a little buzz on both hands |
+| Left View, hold 3 s | Recentre and reset your standing height too, with a second buzz |
+| Pause menu, "VR settings" | Opens the VR settings. If the game's pause menu can't be extended (say it's driven by the original ROM), hold Menu + View together for half a second instead |
+| VR settings, "Quit to Steam" | Asks first, then exits cleanly with `xrRequestExitSession` |
 
-How recentring behaves:
+Recentring moves your head's yaw into the game's heading and your horizontal position into the play-space origin, re-places any floating panels, and happens between stereo frames. A recentre from the runtime itself (`XrEventDataReferenceSpaceChangePending`) does the same thing. Stick clicks and button chords never do system stuff, they stay game controls.
 
-- The head's yaw is transferred into the game's heading, and its horizontal position into the play-space origin.
-- World-locked panels are re-anchored.
-- It takes effect at a stereo frame boundary.
-- A runtime recentre (`XrEventDataReferenceSpaceChangePending`) is handled the same way.
+`sfvr_view` handles the View button timing.
 
-Stick clicks and multi-button chords never do system work.
+## 2. Default button roles
 
-`sfvr_view` implements the View button timing.
-
-## 2. Gameplay roles
-
-| Role | Input |
+| Role | Button |
 | --- | --- |
 | Move or steer | Left stick |
-| Turn | Right stick X: snap or smooth (section 5), or game-defined for vehicles and rail games |
-| Primary action | Dominant-hand trigger |
-| Secondary action | Off-hand trigger |
-| Grab, hold or gesture modifier | Grips |
-| Tertiary actions | Bumpers |
+| Turn | Right stick X (snap or smooth, see section 5), or whatever the game needs for vehicles and rail shooters |
+| Main action | Trigger on your dominant hand |
+| Second action | Other trigger |
+| Grab, hold, gesture modifier | Grips |
+| Extra actions | Bumpers |
 | Jump or confirm | A |
 | Cancel or back | B |
 | Context actions | X, Y |
-| Quick-select | Left D-pad |
-| Game toggles | Stick clicks |
+| Quick select | Left D-pad |
+| Toggles | Stick clicks |
 
-Handedness:
+There's one `dominant_hand` setting that swaps everything tied to a hand (aim, triggers, grips, weapon, menu pointer). It doesn't move the physical buttons, since the Frame controllers aren't symmetrical. Index and Touch bindings should still reach everything, and the Frame profile only gets suggested when `XR_VALVE_frame_controller_interaction` is there.
 
-- A single `dominant_hand` setting swaps everything hand-bound: aim, triggers, grips, weapon model and menu pointer.
-- It never moves the physical buttons. The Frame controllers are asymmetric, so the system layer stays where it is.
+## 3. Menus
 
-Fallbacks:
-
-- Index and Touch fallback profiles keep every action reachable.
-- The Frame profile is suggested only when `XR_VALVE_frame_controller_interaction` is advertised.
-
-## 3. Menus and pointing
-
-- Menus sit on a world-locked panel about 2 m away and about 50° wide. It is anchored on yaw only, and placed on open and on recentre.
-- Pointer:
-  - A ray from the dominant hand's aim pose.
-  - The trigger clicks, with hysteresis.
-  - A confirms; B and a View short press go back; the right stick scrolls.
-- Pad navigation always works too.
-- Targets are at least 2.5–3°, and body text is at least 0.6° tall.
+Menus go on a flat panel about 2 m in front of you, roughly 50 degrees wide. It's anchored on yaw only and gets placed when it opens and when you recentre. Point at it with your dominant hand, the trigger clicks, A confirms, B or a tap of View goes back, and the right stick scrolls. Plain gamepad navigation always works too. Keep targets at least 2.5 to 3 degrees and text at least 0.6 degrees tall.
 
 ## 4. HUD
 
-- Diegetic placement (cockpit instruments, weapon, wrist) is preferred where the game allows.
-- Otherwise the HUD is drawn in its own pass with derived alpha, and composited as a quad that follows head yaw and pitch but never roll.
-- `hud_mode` offers three placements:
+If the game can put its HUD somewhere physical (a cockpit dash, the gun, your wrist), that's the nicest option. Otherwise the HUD gets drawn in its own pass and shown on a panel that follows your head's yaw and pitch, but never roll. `hud_mode` picks where:
 
-| Mode | Placement |
+| Mode | Where |
 | --- | --- |
-| `near` | About 1.5–2 m, about 40° wide |
-| `far` | About 15 m, drawn from the head camera so markers sit over their targets |
-| `leash` | Body-locked, re-yawing past a 20–30° dead zone |
+| `near` | About 1.5 to 2 m away, about 40 degrees wide |
+| `far` | About 15 m away, drawn from your head so markers line up with what they point at |
+| `leash` | Follows your body and only turns once you've looked more than 20 to 30 degrees away |
 
-Transitions between flat, stereo and cinema presentation fade through black.
+Switching between flat, stereo and cutscene views fades through black.
 
 ## 5. Comfort
 
-| Key | Default | Range |
+| Setting | Default | Range |
 | --- | --- | --- |
 | `turn_mode` | `snap` | `snap`, `smooth`, `off` |
-| `snap_angle` | 30° | 15, 30, 45, 60, 90 |
-| `smooth_turn_speed` | 120°/s | 30–360 |
-| `vignette`, `vignette_strength` | off, 0.6 | Artificial motion only |
-| `roomscale`, `lean_limit` | off, 0.35 m | 0.15–0.5 m |
-| `horizon_lock`, `follow_vehicle_rotation` | off | Vehicles and cockpits |
-| `head_translation` | 1.0 | 0–2 |
+| `snap_angle` | 30 | 15, 30, 45, 60, 90 |
+| `smooth_turn_speed` | 120 deg/s | 30 to 360 |
+| `vignette`, `vignette_strength` | off, 0.6 | only for artificial motion |
+| `roomscale`, `lean_limit` | off, 0.35 m | 0.15 to 0.5 m |
+| `horizon_lock`, `follow_vehicle_rotation` | off | vehicles and cockpits |
+| `head_translation` | 1.0 | 0 to 2 |
 
-How the comfort modules work:
-
-- `sfvr_turn` implements snap turning (arm at 70% deflection, re-arm under 30%) and smooth turning (20% dead zone, dt capped at 0.1 s).
-- `sfvr_room` implements roomscale walking:
-  - The player's collision body follows the head's horizontal steps through the game's own collision move.
-  - A step longer than 0.5 m is taken up without moving.
-  - The remaining lean is clamped.
+`sfvr_turn` does snap turning (it fires at 70% stick and re-arms under 30%) and smooth turning (20% dead zone, frame time capped at 0.1 s). `sfvr_room` does roomscale walking: your character's collision body follows your real steps through the game's own collision code, a jump of more than 0.5 m in one step is ignored, and leaning is clamped.
 
 ## 6. Haptics
 
-All pulses are scaled by a `haptics` strength (0–1, default 0.6). Overlapping pulses on a hand are merged into the strongest one per frame.
+Everything is scaled by a `haptics` strength (0 to 1, default 0.6), and if two pulses land on the same hand in one frame, only the stronger one plays.
 
-| Event | Amplitude / duration |
+| Event | Strength / length |
 | --- | --- |
 | `ui_hover` | 0.2 / 10 ms |
 | `ui_click` | 0.5 / 30 ms |
 | `system` | 0.6 / 80 ms, both hands |
 | `gesture` | about 0.5 / 45 ms |
-| `weapon_fire` | Per weapon, by weight |
-| `impact` | 0.35–1.0 / 30–80 ms |
-| `rumble` | Authored dual-band rumble mapped to max(low, high), in 40 ms pulses |
+| `weapon_fire` | depends on the weapon |
+| `impact` | 0.35 to 1.0 / 30 to 80 ms |
+| `rumble` | the game's own rumble, as max(low, high) in 40 ms pulses |
 
-`sfvr_haptics` implements the table and the per-frame coalescing queue.
+That's `sfvr_haptics`.
 
 ## 7. Settings
 
-- Keys use the snake_case names above. They are stored in a versioned settings file in the persistent data directory.
-- Loading the file follows four rules:
-  - missing keys take their defaults;
-  - out-of-range values are clamped;
-  - unknown keys are kept;
-  - writes are atomic.
-- Environment overrides are named `<PORT>_VR_<KEY>`.
-- The in-headset settings page uses a common tab order: Comfort, Controls, HUD & menus, Display & performance, Accessibility & audio, Room, Quit to Steam.
+Settings use the names above and live in a versioned file in the game's save folder. Missing keys get their defaults, out-of-range values get clamped, unknown keys are left alone, and writes are atomic. Environment overrides look like `<PORT>_VR_<KEY>`. The in-headset settings page uses the same tab order everywhere: Comfort, Controls, HUD & menus, Display & performance, Accessibility & audio, Room, then Quit to Steam.
 
-`sfvr_settings` holds the key registry and the value helpers. File I/O stays with each game.
+`sfvr_settings` has the list of keys and some helpers. Reading and writing the file is up to each game.
 
-## 8. Diagnostics and telemetry
+## 8. Debugging
 
-| Key | Meaning |
+| Setting | What it does |
 | --- | --- |
-| `force_render` | Render stereo while the headset is in standby, with a synthetic head |
-| `diag_*` | Synthetic head and hand poses for unattended tests |
-| `dump_frame` | Write eye and HUD images for frame N |
-| `timing`, `timing_gpu` | Stage and GPU timing |
+| `force_render` | Renders stereo while the headset's asleep, with a fake head |
+| `diag_*` | Fake head and hand poses for testing without wearing it |
+| `dump_frame` | Saves the eye and HUD images for frame N |
+| `timing`, `timing_gpu` | Logs timings per stage, and GPU time |
 
-Every port logs one line in the same format every 10 s:
+Every game logs the same line every 10 seconds, which `sfvr_perf` builds:
 
 ```
 [vr-perf] fps=71.9 missed=3 cpu=7.31ms logic=1.20 render=5.02 eye=2.21/2.19ms gpu=8.40ms
 ```
 
-`sfvr_perf` produces it.
+## 9. Refresh rate
 
-## 9. Display
+Ask for a refresh rate with `XR_FB_display_refresh_rate` (the highest one offered at or below the target, 90 Hz by default). If it can't hold 90% of that for two 10-second stretches in a row while you're playing, drop to 72 Hz. Render at the runtime's recommended size times `resolution_scale`.
 
-- The refresh rate is requested with `XR_FB_display_refresh_rate`. The request is the highest offered rate at or below the target, which defaults to 90 Hz.
-- After two consecutive 10 s windows below 90% of the target while focused, the game falls back to 72 Hz.
-- Rendering is at the runtime-recommended size, times `resolution_scale`.
+## 10. Code
 
-## 10. Code shape
-
-- The XR host sits behind an injectable function table, so the lifecycle and bindings are testable without a runtime.
-- `sfvr` is pure C99, with no allocation and no platform dependencies. It is copied into each game's source tree and distributed under that project's licence.
+Keep the OpenXR calls behind a table of function pointers, so the session and bindings can be tested without a headset. sfvr itself is plain C99 with no allocations and no platform dependencies. Each game keeps its own copy, and that copy is under the game's licence.
