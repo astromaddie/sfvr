@@ -9,6 +9,8 @@
 #define SFVR_VERSION_PATCH 0
 #define SFVR_VERSION_STRING "0.1.0"
 
+#include "sfvr_adjust.h"
+#include "sfvr_camera.h"
 #include "sfvr_haptics.h"
 #include "sfvr_perf.h"
 #include "sfvr_room.h"

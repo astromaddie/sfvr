@@ -17,7 +17,7 @@ distances in metres and angles in degrees unless the name ends in `_rad`.
 
 | Section | Module |
 | --- | --- |
-| 1 System layer (L View short/hold) | `sfvr_view.h` |
+| 1 System layer and live adjustments | `sfvr_view.h`, `sfvr_adjust.h`, `sfvr_camera.h` |
 | 5 Comfort turn and roomscale | `sfvr_turn.h`, `sfvr_room.h` |
 | 6 Haptics vocabulary | `sfvr_haptics.h` |
 | 7 Settings key registry | `sfvr_settings.h` |
@@ -37,6 +37,19 @@ the top.
 void     sfvr_view_config_default(sfvr_view_config *c);   /* 1.0 s, 3.0 s */
 void     sfvr_view_reset(sfvr_view_button *b);            /* focus loss: cancel, no events */
 unsigned sfvr_view_update(sfvr_view_button *b, const sfvr_view_config *c, int pressed, double now_s);
+
+/* sfvr_adjust.h: OpenXR x-right/y-up, units/metre inverse to apparent size. */
+void sfvr_adjust_config_default(sfvr_adjust_config *c);   /* 20%, 1.5x/s, 0.25 units/s, 1/30 s cap */
+void sfvr_adjust_init(sfvr_adjust_state *s);
+void sfvr_adjust_focus_lost(sfvr_adjust_state *s);        /* neutral required after focus returns */
+int  sfvr_adjust_update(sfvr_adjust_state *s, const sfvr_adjust_config *c, float right_xy[2],
+                        int left_grip, int eligible, int menu_active, int view_active,
+                        double predicted_display_s, float *world_scale,
+                        float *camera_closer, float *camera_lower);
+
+/* sfvr_camera.h: signed closer [-1,.8], lower [-1,1], zero preserves source camera. */
+void sfvr_camera_origin(const float source[3], const float target[3],
+                        float camera_closer, float camera_lower, float out[3]);
 
 /* sfvr_turn.h: yaw delta in degrees, positive = turn right (clockwise from above) */
 void  sfvr_turn_config_default(sfvr_turn_config *c);

@@ -14,7 +14,7 @@ CXXFLAGS += $(CXXWARN) -O2 -Iinclude
 HEADERS := $(wildcard include/sfvr/*.h)
 SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%.c,$(BUILD)/%.o,$(SRCS))
-TESTS := view turn haptics room perf settings
+TESTS := view turn haptics room perf settings adjust camera
 TEST_BINS := $(addprefix $(BUILD)/test_,$(TESTS))
 CXX_HEADER_TUS := $(patsubst include/sfvr/%.h,$(BUILD)/cxx_%.cpp,$(HEADERS))
 

@@ -9,6 +9,8 @@ endif()
 option(SFVR_BUILD_TESTS "Build the sfvr tests" ${SFVR_TOP_LEVEL})
 
 add_library(sfvr STATIC
+	src/sfvr_adjust.c
+	src/sfvr_camera.c
 	src/sfvr_haptics.c
 	src/sfvr_perf.c
 	src/sfvr_room.c
@@ -24,7 +26,7 @@ endif()
 
 if(SFVR_BUILD_TESTS)
 	enable_testing()
-	foreach(name view turn haptics room perf settings)
+	foreach(name view turn haptics room perf settings adjust camera)
 		add_executable(test_${name} tests/test_${name}.c)
 		target_link_libraries(test_${name} PRIVATE sfvr)
 		set_target_properties(test_${name} PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)

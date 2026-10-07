@@ -19,11 +19,25 @@ At least 72 fps at 1728x1728 per eye. The default Frame bindings have to reach e
 | Left View, hold 1 s | Recentre, with a little buzz on both hands |
 | Left View, hold 3 s | Recentre and reset your standing height too, with a second buzz |
 | Pause menu, "VR settings" | Opens the VR settings. If the game's pause menu can't be extended (say it's driven by the original ROM), hold Menu + View together for half a second instead |
-| VR settings, "Quit to Steam" | Asks first, then exits cleanly with `xrRequestExitSession` |
+| Left grip held + right stick | Adjust world size and applicable camera distance/height live; see the signed ranges below |
 
 Recentring moves your head's yaw into the game's heading and your horizontal position into the play-space origin, re-places any floating panels, and happens between stereo frames. A recentre from the runtime itself (`XrEventDataReferenceSpaceChangePending`) does the same thing. Stick clicks and button chords never do system stuff, they stay game controls.
 
 `sfvr_view` handles the View button timing.
+
+**Live adjustment shortcut:** Hold the physical left grip and use the physical right stick. X adjusts
+apparent world size proportionally; Y adjusts applicable camera height and distance. A 20% deadzone and
+predicted-display-time delta capped at 1/30 s keep the rate stable through stalls. Menu and View take
+priority; the right stick is consumed before gameplay and comfort turning while the modifier is active.
+After release or focus loss, keep it muted until it returns to neutral. Left-stick movement, bumpers and
+triggers retain their game actions. Apply in gameplay and the VR settings gameplay preview; title screens,
+cinema, ordinary pause and modal menus keep their normal input. Starting reference rates are 1.5x apparent
+size per second and 0.25 camera-setting units per second at full deflection.
+
+For ordinary third-person play, use the game's native gamepad face-button roles and free the physical
+left grip for this shortcut. First-person grab/holster, vehicles, instruments, targeting and scripted
+controls retain their meaningful grip actions; occupied first-person grips use settings-preview
+adjustment only. Custom mappings remain authoritative; migrate only exact known shipped defaults.
 
 ## 2. Default button roles
 
@@ -46,6 +60,12 @@ There's one `dominant_hand` setting that swaps everything tied to a hand (aim, t
 ## 3. Menus
 
 Menus go on a flat panel about 2 m in front of you, roughly 50 degrees wide. It's anchored on yaw only and gets placed when it opens and when you recentre. Point at it with your dominant hand, the trigger clicks, A confirms, B or a tap of View goes back, and the right stick scrolls. Plain gamepad navigation always works too. Keep targets at least 2.5 to 3 degrees and text at least 0.6 degrees tall.
+
+Camera settings freeze the simulation and preserve the gameplay camera immediately before pause, while
+both eyes re-render with current pose and values. Closing settings restores the ordinary pause view.
+Use the existing panel/components at the right, with its inner edge about 10 degrees from forward;
+`settings_page_side = right|left|centre` supplies alternatives. Keep saved distances, world-lock to yaw
+on open/recentre, and use the composed panel pose for pointer hits.
 
 ## 4. HUD
 
@@ -70,6 +90,11 @@ Switching between flat, stereo and cutscene views fades through black.
 | `roomscale`, `lean_limit` | off, 0.35 m | 0.15 to 0.5 m |
 | `horizon_lock`, `follow_vehicle_rotation` | off | vehicles and cockpits |
 | `head_translation` | 1.0 | 0 to 2 |
+| `height_offset` | 0 m | -1 to 1 m |
+| `seated` | off | retain a standing calibration |
+| `camera_closer` | 0 | -1 to 0.8; negative extends farther, positive moves closer |
+| `camera_lower` | 0 | -1 to 1; negative raises, positive lowers |
+| `world_scale` | Per-game baseline | UI shows apparent size, at least 25% to 400%; preserve wider native ranges |
 
 `sfvr_turn` does snap turning (it fires at 70% stick and re-arms under 30%) and smooth turning (20% dead zone, frame time capped at 0.1 s). `sfvr_room` does roomscale walking: your character's collision body follows your real steps through the game's own collision code, a jump of more than 0.5 m in one step is ignored, and leaning is clamped.
 
@@ -91,7 +116,7 @@ That's `sfvr_haptics`.
 
 ## 7. Settings
 
-Settings use the names above and live in a versioned file in the game's save folder. Missing keys get their defaults, out-of-range values get clamped, unknown keys are left alone, and writes are atomic. Environment overrides look like `<PORT>_VR_<KEY>`. The in-headset settings page uses the same tab order everywhere: Comfort, Controls, HUD & menus, Display & performance, Accessibility & audio, Room, then Quit to Steam.
+Settings use the names above and live in a versioned file in the game's save folder. Missing keys get their defaults, out-of-range values get clamped, unknown keys are left alone, and writes are atomic. Environment overrides look like `<PORT>_VR_<KEY>`. Persist `defaults_profile = standard|frame_personal`: fresh standard settings use snap 30 degrees; the personal profile uses smooth 120 degrees/second and ordinary third person where supported. Valid saved choices win on load, and Defaults uses the selected profile. The in-headset settings page uses the same tab order everywhere: Comfort, Controls, HUD & menus, Display & performance, Accessibility & audio, Room.
 
 `sfvr_settings` has the list of keys and some helpers. Reading and writing the file is up to each game.
 
@@ -112,7 +137,7 @@ Every game logs the same line every 10 seconds, which `sfvr_perf` builds:
 
 ## 9. Refresh rate
 
-Ask for a refresh rate with `XR_FB_display_refresh_rate` (the highest one offered at or below the target, 90 Hz by default). If it can't hold 90% of that for two 10-second stretches in a row while you're playing, drop to 72 Hz. Render at the runtime's recommended size times `resolution_scale`.
+The wearer chooses a per-app rate in SteamVR; Steam Frame provides a single rate to the running title. Ports document the recommended rate for that game. In the app, request an offered rate at most once; do not retry or build a fallback ladder. Trust `predictedDisplayPeriod` for frame timing and log once after two 10-second worn windows below 90% of the active rate, recommending a lower per-app rate when needed. Render at the runtime's recommended size times `resolution_scale`.
 
 ## 10. Code
 
