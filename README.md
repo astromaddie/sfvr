@@ -4,6 +4,8 @@ A small C99 library I use across my Steam Frame VR ports. It keeps the common co
 
 **EXPERIMENTAL.** This is a support library, not a game or an OpenXR runtime. It has no game-data requirement and no OpenXR, graphics or SDL dependency. The game ports handle their own rendering, controller bindings and file storage.
 
+**Prebuilt Steam Frame SDK:** Download the ARM64 package from the [v0.1.0 prerelease](https://github.com/astromaddie/sfvr/releases/tag/v0.1.0). It includes the compiled library and headers for use in other ports.
+
 ## What's in it
 
 - Short-press and hold timing for View, including recentring and height calibration.
