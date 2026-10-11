@@ -2,24 +2,28 @@
   "schema_version": 1,
   "milestone": "PR0",
   "status": "EXPERIMENTAL",
-  "publication_status": "ready for public source publication",
+  "publication_status": "public source; no binary release",
   "tested_commit": "c3f69ac72d072cebae0c7a4612d5cb8218bcda06",
   "supported_targets": [
     "Portable C99 library; C/C++ headers"
   ],
   "validation": {
     "commit": "c3f69ac72d072cebae0c7a4612d5cb8218bcda06",
-    "fresh_checkout": "Local clone with no hardlinks; isolated HOME, disabled system/global Git configuration, no Git credentials. Anonymous GitHub root clone will be checked after visibility changes.",
+    "fresh_checkout": "Local no-hardlinks clone for full tests and sanitizers; anonymous GitHub HTTPS clone for post-publication tests. Isolated home and no Git credentials.",
     "commands": [
       "make test",
       "make sanitize"
     ],
-    "result": "PASS: nine unit/header/linkage suites; AddressSanitizer and UndefinedBehaviorSanitizer checks passed."
+    "result": "PASS: nine unit/header/linkage suites; AddressSanitizer and UndefinedBehaviorSanitizer checks passed.",
+    "anonymous_clone": {
+      "commit": "6c959f4a68f402beeb30e26b17436503e8c0e451",
+      "result": "PASS: anonymous HTTPS clone and make test with no credential helper or private Git configuration"
+    }
   },
   "full_application_build": "not applicable; portable helper library built and tested",
   "focused_headset_acceptance": "not applicable to this standalone support library",
   "distribution_blockers": [],
   "license_scope": "Retained component notices apply to their stated code; they do not grant redistribution rights to commercial ROMs, extracted media, saves or proprietary libraries.",
   "changelog": "CHANGELOG.md",
-  "build_isolation": "Fresh local source checkout, empty shell HOME, env -i, disabled system/global Git config and no personal Git credentials. Root repositories remain private, so anonymous root cloning cannot be claimed before publication."
+  "build_isolation": "Empty shell home, disabled system/global Git config and credential helper; anonymous public root clone passed."
 }
