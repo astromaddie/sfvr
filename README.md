@@ -18,7 +18,21 @@ The [standard](STANDARD.md) explains the controls and conventions. Each header d
 
 ## Build and test
 
-You'll need a C99 compiler, a C++17 compiler for the header checks, and Make. The tests run on the development machine and need no headset or game files.
+Build and test on macOS, Linux (including Frame Desktop), or Windows. This library has no platform SDK requirement. You'll need a C99 compiler and a C++17 compiler for the header checks. The tests run on the build machine and need no headset or game files.
+
+The CMake route works with a C/C++ toolchain and CMake:
+
+```sh
+git clone https://github.com/astromaddie/sfvr.git
+cd sfvr
+cmake -S . -B build-cmake
+cmake --build build-cmake --config Release
+ctest --test-dir build-cmake -C Release --output-on-failure
+```
+
+On Windows, install Visual Studio's **Desktop development with C++** workload and run these commands in its developer terminal, or use [WSL2 Ubuntu](https://learn.microsoft.com/en-us/windows/wsl/install) with the Linux toolchain. On Ubuntu, install `build-essential` and `cmake`; on macOS, use Xcode Command Line Tools and CMake. On Frame Desktop, use an environment with those build tools available.
+
+With Make installed on macOS or Linux, you can also run the full header checks:
 
 ```sh
 git clone https://github.com/astromaddie/sfvr.git
