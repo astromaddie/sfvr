@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "milestone": "PR0",
+  "status": "EXPERIMENTAL",
+  "publication_status": "private preparation; no release published",
+  "tested_commit": "57bb01309effea58df2d91b24836b4b7cd41f1c4",
+  "supported_targets": [
+    "Portable C99 library; C/C++ headers"
+  ],
+  "validation": {
+    "commit": "57bb01309effea58df2d91b24836b4b7cd41f1c4",
+    "command": "make test",
+    "result": "PASS; strict C99 and C++ linkage checks plus 9 unit suites, zero failures."
+  },
+  "full_application_build": "not applicable; portable helper library built and tested",
+  "focused_headset_acceptance": "not applicable; acceptance belongs to consuming ports",
+  "sustained_worn_performance": "not applicable",
+  "distribution_blockers": [],
+  "license_scope": "Retained component notices apply to their stated code; they do not grant redistribution rights to commercial ROMs, extracted media, saves or proprietary libraries.",
+  "changelog": "CHANGELOG.md",
+  "build_isolation": "Fresh local source checkout, empty shell HOME, env -i, disabled system/global Git config and no personal Git credentials. Root repositories remain private, so anonymous root cloning cannot be claimed before publication."
+}

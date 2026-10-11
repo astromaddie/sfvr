@@ -6,7 +6,7 @@ The library is used by the [Vice City VR port](https://github.com/astromaddie/vi
 
 ## Status
 
-This is experimental support code. Its host unit and C/C++ header checks are available locally; it has no independent headset acceptance claim. Game ports must still validate their own controller mapping, tracking, stereo rendering, gameplay, comfort and performance.
+This is experimental support code. A fresh isolated checkout at `57bb01309effea58df2d91b24836b4b7cd41f1c4` passed `make test`, including nine unit suites and C/C++ header/linkage checks; it has no independent headset acceptance claim. Game ports must still validate their own controller mapping, tracking, stereo rendering, gameplay, comfort and performance.
 
 | Check | Route | Scope |
 |---|---|---|
@@ -22,3 +22,5 @@ make test
 ```
 
 Use this library only under the included [MIT License](LICENSE). It contains no game code, ROMs or commercial game data. The previous root README is preserved in [docs/README_PRE_PR0.md](docs/README_PRE_PR0.md).
+
+Immutable tested source, final checks and open gates: [PR0 metadata](docs/PR0_METADATA.json).

@@ -7,6 +7,8 @@
 - **License:** root LICENSE is the original MIT text copied from the sfvr source in the Steam Frame playbook. It grants rights to this library only, not to any game-port source, game assets, ROM or commercial data.
 - **Build route:** from a fresh checkout, run make test; optional sanitizer route is make sanitize. See STANDARD.md for behavior conventions.
 
+The immutable PR0 test source commit, supported targets and final check results are in [PR0_METADATA.json](PR0_METADATA.json).
+
 ## Evidence
 
 | Check | Result |
