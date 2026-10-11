@@ -2,19 +2,22 @@
   "schema_version": 1,
   "milestone": "PR0",
   "status": "EXPERIMENTAL",
-  "publication_status": "private preparation; no release published",
-  "tested_commit": "57bb01309effea58df2d91b24836b4b7cd41f1c4",
+  "publication_status": "ready for public source publication",
+  "tested_commit": "c3f69ac72d072cebae0c7a4612d5cb8218bcda06",
   "supported_targets": [
     "Portable C99 library; C/C++ headers"
   ],
   "validation": {
-    "commit": "57bb01309effea58df2d91b24836b4b7cd41f1c4",
-    "command": "make test",
-    "result": "PASS; strict C99 and C++ linkage checks plus 9 unit suites, zero failures."
+    "commit": "c3f69ac72d072cebae0c7a4612d5cb8218bcda06",
+    "fresh_checkout": "Local clone with no hardlinks; isolated HOME, disabled system/global Git configuration, no Git credentials. Anonymous GitHub root clone will be checked after visibility changes.",
+    "commands": [
+      "make test",
+      "make sanitize"
+    ],
+    "result": "PASS: nine unit/header/linkage suites; AddressSanitizer and UndefinedBehaviorSanitizer checks passed."
   },
   "full_application_build": "not applicable; portable helper library built and tested",
-  "focused_headset_acceptance": "not applicable; acceptance belongs to consuming ports",
-  "sustained_worn_performance": "not applicable",
+  "focused_headset_acceptance": "not applicable to this standalone support library",
   "distribution_blockers": [],
   "license_scope": "Retained component notices apply to their stated code; they do not grant redistribution rights to commercial ROMs, extracted media, saves or proprietary libraries.",
   "changelog": "CHANGELOG.md",
